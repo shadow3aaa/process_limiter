@@ -1,25 +1,19 @@
+mod display;
 mod ext;
-mod construct;
 
-pub use construct::{
-    limiter::*,
-    task::*,
-};
-pub use ext::{
-    limiter::LimiterExt,
-    task::TaskExt,
-};
-use sysinfo::{
-    System,
-    SystemExt,
-    Process,
-};
+pub use display::*;
+pub use ext::{limiter::*, task::*};
+use std::{collections::HashMap, marker::PhantomData};
+use sysinfo::{Process, System};
 
-pub struct Limiter<'sys> {
-    system : System,
-    tasks : Vec<Task<'sys>>,
+#[derive(Debug)]
+pub struct Limiter<'a: 'b, 'b> {
+    system: System,
+    tasks: HashMap<u32, Task<'b>>,
+    _marker: PhantomData<&'a ()>,
 }
 
-pub struct Task<'sys> {
-    process : &'sys Process,
+#[derive(Debug)]
+pub struct Task<'b> {
+    process: &'b Process,
 }
