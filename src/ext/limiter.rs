@@ -29,11 +29,14 @@ impl<'a: 'b, 'b> LimiterExt<'a, 'b> for Limiter<'a, 'b> {
         Self::default()
     }
     fn new_task(&'a mut self, by: CreatTaskBy) -> Option<&'b mut Task<'b>> {
+        // Get the process
         let process = match by {
             CreatTaskBy::Pid(p) => self.system.process(Pid::from_u32(p))?,
             CreatTaskBy::Name(s) => self.system.processes_by_name(&s).next()?,
             CreatTaskBy::ExactName(s) => self.system.processes_by_exact_name(&s).next()?,
         };
+
+        // Save the Task and return a ref
         let pid = process.pid().as_u32();
         self.tasks.insert(pid, Task::new(process));
         self.tasks.get_mut(&pid)

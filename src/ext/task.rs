@@ -1,4 +1,4 @@
-use crate::Task;
+use crate::{core, Task};
 use sysinfo::Process;
 
 pub trait TaskExt<'b> {
