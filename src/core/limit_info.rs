@@ -1,16 +1,9 @@
 use std::time::Duration;
-
-const TOTAL_SLICE: Duration = Duration::from_millis(150);
+use crate::LimitInfo;
+const TOTAL_SLICE: Duration = Duration::from_millis(100);
 
 // In order to calculate the working time slice and sleep time slice length, these data is needed:
 // Current CPU usage of the process, target CPU usage, last working time
-#[derive(Debug)]
-pub struct LimitInfo {
-    current_usage: f32,
-    target_usage: f32,
-    last_work_slice: Duration,
-    total_slice: Duration,
-}
 
 impl LimitInfo {
     pub fn new(current_usage: f32, target_usage: f32, last_work_slice: Duration) -> Self {
@@ -20,6 +13,11 @@ impl LimitInfo {
             last_work_slice,
             total_slice: TOTAL_SLICE,
         }
+    }
+    // The default is 100ms, if you need to customize it
+    pub fn spec_total_slice(mut self, total_slice: Duration) -> Self {
+        self.total_slice = total_slice;
+        self
     }
     // Result:
     // 0: Work time, 1: Sleep time, 2: Total time
