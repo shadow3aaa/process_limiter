@@ -1,5 +1,5 @@
 use std::{thread::sleep, time::Duration};
-use sysinfo::{Process, ProcessExt, System, SystemExt, Signal};
+use sysinfo::{Process, ProcessExt, Signal};
 use crate::LimitInfo;
 
 // Use a run-time-slice limiting approach
@@ -14,15 +14,4 @@ pub fn limit_process(process: &Process, mut info: LimitInfo) -> Duration {
     sleep(sleep_slice);
     process.kill_with(Signal::Continue);
     work_slice
-}
-
-// 检测是否支持该库的方法
-pub fn support() -> bool {
-    if !System::IS_SUPPORTED {
-        return false
-    }
-    if !System::SUPPORTED_SIGNALS.contains(&Signal::Stop) || !System::SUPPORTED_SIGNALS.contains(&Signal::Continue) {
-        return false
-    }
-    true
 }

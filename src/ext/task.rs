@@ -1,4 +1,4 @@
-use crate::{Task, LimitInfo, core::limit_info::*};
+use crate::{Task};
 use sysinfo::Process;
 use std::time::Duration;
 
@@ -9,10 +9,6 @@ pub trait TaskExt<'b> {
 
 impl<'b> TaskExt<'b> for Task<'b> {
     fn new(process: &'b Process) -> Self {
-        let info = LimitInfo::new(: f32, target_usage: f32, last_work_slice: Duration)
-        Self {
-            process,
-            info : 
-        }
+        
     }
 }

@@ -2,11 +2,22 @@ mod core;
 mod display;
 mod ext;
 
-pub use core::*;
+pub use crate::core::*;
 pub use display::*;
 pub use ext::{limiter::*, task::*};
 use std::{collections::HashMap, marker::PhantomData, time::Duration};
-use sysinfo::{Pid, Process, System};
+use sysinfo::{Pid, Process, System, SystemExt, Signal};
+
+// 检测是否支持该库的方法
+pub fn support() -> bool {
+    if !System::IS_SUPPORTED {
+        return false
+    }
+    if !System::SUPPORTED_SIGNALS.contains(&Signal::Stop) || !System::SUPPORTED_SIGNALS.contains(&Signal::Continue) {
+        return false
+    }
+    true
+}
 
 #[derive(Debug)]
 pub struct Limiter<'a: 'b, 'b> {
