@@ -1,12 +1,5 @@
-pub mod limit_info;
-use limit_info::*;
-use sysinfo::{Process, ProcessExt};
+mod limit_info;
+mod process;
 
-// Use a run-time-slice limiting approach
-// Calculation method: (Working time slice percentage) = (Process CPU usage) / (Target CPU usage) * (Last working time slice percentage)
-// ⚠: If the calculation Result% > 100% time slice, it is considered 100%
-// ⚠: If the calculation Result% < Minimum margin% time slice, then it is considered 0%
-
-pub fn limit_process(process: &Process, info: LimitInfo) -> Result<Duration, ()> {
-    
-}
+pub use limit_info::*;
+pub use process::*;

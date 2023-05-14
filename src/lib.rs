@@ -2,6 +2,7 @@ mod core;
 mod display;
 mod ext;
 
+pub use core::*;
 pub use display::*;
 pub use ext::{limiter::*, task::*};
 use std::{collections::HashMap, marker::PhantomData, time::Duration};
