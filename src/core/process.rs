@@ -1,6 +1,6 @@
+use crate::LimitInfo;
 use std::{thread::sleep, time::Duration};
 use sysinfo::{Process, ProcessExt, Signal};
-use crate::LimitInfo;
 
 // Use a run-time-slice limiting approach
 // Calculation method: (Working time slice percentage) = (Process CPU usage) / (Target CPU usage) * (Last working time slice percentage)

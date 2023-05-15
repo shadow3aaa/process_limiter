@@ -1,5 +1,5 @@
-use std::time::Duration;
 use crate::LimitInfo;
+use std::time::Duration;
 const TOTAL_SLICE: Duration = Duration::from_millis(100);
 
 // In order to calculate the working time slice and sleep time slice length, these data is needed:

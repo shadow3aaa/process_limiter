@@ -1,14 +1,11 @@
-use crate::{Task};
-use sysinfo::Process;
+use crate::Task;
 use std::time::Duration;
+use sysinfo::Process;
 
 pub trait TaskExt<'b> {
     fn new(process: &'b Process) -> Self;
-    fn limit_once(&self) ->
 }
 
 impl<'b> TaskExt<'b> for Task<'b> {
-    fn new(process: &'b Process) -> Self {
-        
-    }
+    fn new(process: &'b Process) -> Self {}
 }
