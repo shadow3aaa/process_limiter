@@ -34,6 +34,13 @@ pub(crate) enum Update {
     Spec(Pid),
 }
 
+pub enum TaskStatus {
+	Init,      // 初始化中
+    Active,    // 限制进行中
+    Paused,    // 限制已暂停并且暂时取消限制
+    Expired    // 跟踪的pid已经消失/被复用
+}
+
 #[derive(Debug)]
 pub struct Limiter<'a: 'b, 'b> {
     system: Arc<Mutex<System>>,
@@ -53,6 +60,7 @@ pub struct Limiter<'a: 'b, 'b> {
 pub struct Task<'a> {
     process: &'a Process,
     sender: Sender<Update>,
+    status: TaskStatus,
     info: LimitInfo,
 }
 

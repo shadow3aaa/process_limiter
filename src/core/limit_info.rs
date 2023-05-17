@@ -19,6 +19,12 @@ impl LimitInfo {
         self.total_slice = total_slice;
         self
     }
+    pub fn update_current_usage(mut self, usage: f32) -> Self {
+    	
+    }
+    pub fn update_taregt_usage(mut self, usage: f32) -> Self {
+    	
+    }
     // Result:
     // 0: Work time, 1: Sleep time, 2: Total time
     // Calculation method: (Working time slice percentage) = (Process CPU usage) / (Target CPU usage) * (Last working time slice percentage)
