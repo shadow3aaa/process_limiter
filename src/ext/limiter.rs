@@ -36,26 +36,8 @@ impl<'a: 'b, 'b> Default for Limiter<'a, 'b> {
             RefreshKind::new().with_processes(PROCESS_REFRESH!()),
         )));
 
-        let (s, r) = channel();
-        let updater_thread = thread::spawn(move || {
-            let system = system.clone();
-            loop {
-                let up_req = r.recv().unwrap();
-                let system_up = &mut *system.lock().unwrap();
-                match up_req {
-                    Update::All => {
-                        update_all(system_up);
-                    }
-                    Update::Spec(pid) => {
-                        update_spec(system_up, pid);
-                    }
-                }
-            }
-        });
         Self {
             system,
-            sender_orginal: s,
-            updater_thread,
             tasks: HashMap::<Pid, Task<'b>>::new(),
             _marker: PhantomData,
         }
@@ -77,8 +59,7 @@ impl<'a: 'b, 'b> LimiterExt<'a, 'b> for Limiter<'a, 'b> {
 
         // Save the Task and return a ref
         let pid = process.pid();
-        self.tasks
-            .insert(pid, Task::new(process, self.sender_orginal.clone()));
+        self.tasks.insert(pid, Task::new(process, self.system.clone()));
         self.tasks.get_mut(&pid)
     }
 }

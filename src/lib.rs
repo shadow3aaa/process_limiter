@@ -8,7 +8,7 @@ pub use ext::{limiter::*, task::*};
 use std::{
     collections::HashMap,
     marker::PhantomData,
-    sync::{mpsc::Sender, Arc, Mutex},
+    sync::{Arc, Mutex},
     thread::JoinHandle,
     time::Duration,
 };
@@ -45,13 +45,8 @@ pub enum TaskStatus {
 #[derive(Debug)]
 pub struct Limiter<'a: 'b, 'b> {
     system: Arc<Mutex<System>>,
-    // This allows the system to handle update requests sent by Tasks
-    updater_thread: JoinHandle<()>,
-    sender_orginal: Sender<Update>,
-
     // Save the map of Tasks in Limiter
     tasks: HashMap<Pid, Task<'b>>,
-
     // _marker is used to transmit <'a> life cycle to Limiter
     // Makes sense only for the compiler
     _marker: PhantomData<&'a ()>,
@@ -60,7 +55,7 @@ pub struct Limiter<'a: 'b, 'b> {
 #[derive(Debug)]
 pub struct Task<'a> {
     process: &'a Process,
-    sender: Sender<Update>,
+    system: Arc<Mutex<System>>,
     thread: JoinHandle<()>,
     status: TaskStatus,
     info: LimitInfo,
