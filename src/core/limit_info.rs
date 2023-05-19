@@ -5,6 +5,17 @@ const TOTAL_SLICE: Duration = Duration::from_millis(100);
 // In order to calculate the working time slice and sleep time slice length, these data is needed:
 // Current CPU usage of the process, target CPU usage, last working time
 
+impl Default for LimitInfo {
+    fn default() -> Self {
+        Self {
+            current_usage: 0.0,
+            target_usage: 0.0,
+            last_work_slice: TOTAL_SLICE,
+            total_slice: TOTAL_SLICE,
+        }
+    }
+}
+
 impl LimitInfo {
     pub fn new(current_usage: f32, target_usage: f32, last_work_slice: Duration) -> Self {
         LimitInfo {
@@ -15,15 +26,18 @@ impl LimitInfo {
         }
     }
     // The default is 100ms, if you need to customize it
-    pub fn spec_total_slice(mut self, total_slice: Duration) -> Self {
+    // However I don't think it's necessary, maybe later
+    /* pub fn spec_total_slice(mut self, total_slice: Duration) -> Self {
         self.total_slice = total_slice;
         self
-    }
+    } */
     pub fn update_current_usage(mut self, usage: f32) -> Self {
-    	
+        self.current_usage = usage;
+        self
     }
     pub fn update_taregt_usage(mut self, usage: f32) -> Self {
-    	
+        self.target_usage = usage;
+        self
     }
     // Result:
     // 0: Work time, 1: Sleep time, 2: Total time

@@ -77,7 +77,8 @@ impl<'a: 'b, 'b> LimiterExt<'a, 'b> for Limiter<'a, 'b> {
 
         // Save the Task and return a ref
         let pid = process.pid();
-        self.tasks.insert(pid, Task::new(process));
+        self.tasks
+            .insert(pid, Task::new(process, self.sender_orginal.clone()));
         self.tasks.get_mut(&pid)
     }
 }
