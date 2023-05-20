@@ -31,17 +31,14 @@ impl LimitInfo {
         self.total_slice = total_slice;
         self
     } */
-    pub fn update_current_usage(mut self, usage: f32) -> Self {
+    pub fn update_current_usage(&mut self, usage: f32) {
         self.current_usage = usage;
-        self
     }
-    pub fn update_taregt_usage(mut self, usage: f32) -> Self {
+    pub fn update_taregt_usage(&mut self, usage: f32) {
         self.target_usage = usage;
-        self
     }
-    pub fn update_work_slice(mut self, work_slice: Duration) -> Self {
+    pub fn update_work_slice(&mut self, work_slice: Duration) {
         self.last_work_slice = work_slice;
-        self
     }
     pub fn total_slice(&self) -> Duration {
         self.total_slice

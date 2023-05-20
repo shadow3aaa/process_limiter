@@ -1,10 +1,17 @@
-use crate::{LimitInfo, Task, TaskStatus, process};
+use crate::{LimitInfo, Task, TaskStatus, core};
 use std::error::Error;
 use std::os::unix::thread::JoinHandleExt;
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 
-use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, Signal};
+use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, Signal, ProcessRefreshKind};
+
+// What the Process needs to be refreshed
+macro_rules! PROCESS_REFRESH {
+    () => {
+        ProcessRefreshKind::new().with_cpu().with_user()
+    };
+}
 
 pub trait TaskExt {
     fn new(system: Arc<Mutex<System>>) -> Self;
@@ -31,21 +38,26 @@ impl TaskExt for Task {
         self.thread = Some(thread::spawn(move || {
             let mut info = LimitInfo::default();
             loop {
-                let target = if let Ok(o) = target.lock() {
+                let mut system = if let Ok(o) = system.lock() {
                     o
                 } else {
                     continue;
                 };
-                let system = if let Ok(o) = system.lock() {
-                    o
-                } else {
-                    continue;
-                };
+                system.refresh_process_specifics(Pid::from_u32(pid), PROCESS_REFRESH!());
                 let process = if let Some(o) = system.process(Pid::from_u32(pid)) {
                     o
                 } else {
-                    continue;
+                    break;
                 };
+
+                info.update_current_usage(process.cpu_usage());
+                if let Ok(o) = target.lock() {
+                    info.update_taregt_usage(*o);
+                } else {
+                    continue;
+                }
+                let work_slice = core::process::limit_process(process, &mut info);
+                info.update_work_slice(work_slice);
             }
         }));
     }
