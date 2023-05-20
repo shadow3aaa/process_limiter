@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use sysinfo::{
-    Pid, PidExt, ProcessRefreshKind, RefreshKind, System, SystemExt, ProcessExt,
+    PidExt, ProcessRefreshKind, RefreshKind, System, SystemExt, ProcessExt,
 };
 
 // What the Process needs to be refreshed
@@ -63,8 +63,4 @@ impl LimiterExt for Limiter {
 
 fn update_all(system: &mut System) {
     system.refresh_processes_specifics(PROCESS_REFRESH!());
-}
-
-fn update_spec(system: &mut System, pid: Pid) {
-    system.refresh_process_specifics(pid, PROCESS_REFRESH!());
 }

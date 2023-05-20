@@ -42,7 +42,9 @@ impl TaskExt for Task {
                 } else {
                     continue;
                 };
-                system.refresh_process_specifics(Pid::from_u32(pid), PROCESS_REFRESH!());
+                if !system.refresh_process_specifics(Pid::from_u32(pid), PROCESS_REFRESH!()) {
+                    break;
+                };
                 let process = if let Some(o) = system.process(Pid::from_u32(pid)) {
                     o
                 } else {
