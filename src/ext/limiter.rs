@@ -1,10 +1,6 @@
 use crate::{Limiter, Task, TaskExt};
-use std::{
-    sync::{Arc, Mutex},
-};
-use sysinfo::{
-    PidExt, ProcessRefreshKind, RefreshKind, System, SystemExt, ProcessExt,
-};
+use std::sync::{Arc, Mutex};
+use sysinfo::{PidExt, ProcessExt, ProcessRefreshKind, RefreshKind, System, SystemExt};
 
 // What the Process needs to be refreshed
 macro_rules! PROCESS_REFRESH {

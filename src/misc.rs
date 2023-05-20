@@ -1,6 +1,6 @@
-use std::{thread::JoinHandle, error::Error, os::unix::thread::JoinHandleExt};
-use sysinfo::{System, Pid, Signal, PidExt, SystemExt, ProcessExt, ProcessStatus};
 use crate::TaskStatus;
+use std::{error::Error, os::unix::thread::JoinHandleExt, thread::JoinHandle};
+use sysinfo::{Pid, PidExt, ProcessExt, ProcessStatus, Signal, System, SystemExt};
 
 pub fn get_thread_pid<T>(thread: &JoinHandle<T>) -> u32 {
     thread.as_pthread_t() as u32

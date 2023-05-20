@@ -1,9 +1,9 @@
-use crate::{LimitInfo, Task, TaskStatus, core, misc};
+use crate::{core, misc, LimitInfo, Task, TaskStatus};
 use std::error::Error;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, ProcessRefreshKind};
+use sysinfo::{Pid, PidExt, ProcessExt, ProcessRefreshKind, System, SystemExt};
 
 // What the Process needs to be refreshed
 macro_rules! PROCESS_REFRESH {
@@ -101,7 +101,7 @@ impl TaskExt for Task {
         };
         match misc::status_by_pid(&mut system, pid) {
             Ok(o) => o,
-            Err(_) => TaskStatus::NeedInit
+            Err(_) => TaskStatus::NeedInit,
         }
     }
 }
