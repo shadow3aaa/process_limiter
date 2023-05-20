@@ -26,7 +26,6 @@ impl TaskExt for Task {
     fn new(system: Arc<Mutex<System>>) -> Self {
         Self {
             system,
-            pid: None,
             thread: None,
             target: Arc::new(Mutex::new(1.0)),
             status: TaskStatus::Init,

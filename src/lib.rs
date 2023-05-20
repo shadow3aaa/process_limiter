@@ -39,10 +39,7 @@ pub struct Limiter {
 #[derive(Debug)]
 pub struct Task {
     system: Arc<Mutex<System>>,
-
-    pid: Option<u32>,
     thread: Option<JoinHandle<()>>,
-
     target: Arc<Mutex<f32>>,
     status: TaskStatus,
 }
