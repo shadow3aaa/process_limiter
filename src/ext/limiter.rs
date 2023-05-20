@@ -52,7 +52,7 @@ impl LimiterExt for Limiter {
         };
         update_all(&mut system);
         let list = system.processes_by_exact_name(name);
-        // 优先返回pid更小的那个
+        // Preference is given to returning the one with the smaller PID
         list.into_iter().map(|p| p.pid().as_u32()).min()
     }
 }
