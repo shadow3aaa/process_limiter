@@ -1,6 +1,7 @@
 [package]
 name = "process_limiter"
 version = "0.1.0"
+authors = ["shadow3 <shadow3aaa@qq.com>"]
 description = "A lib which can directly limit the specified process occupancy, and support multithreading and dynamically changing occupancy"
 license = "WTFPL"
 repository = "https://github.com/shadow3aaa/process_limiter"
