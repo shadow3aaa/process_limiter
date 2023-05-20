@@ -41,7 +41,7 @@ pub struct Task {
     system: Arc<Mutex<System>>,
 
     pid: Option<u32>,
-    thread: JoinHandle<()>,
+    thread: Option<JoinHandle<()>>,
 
     status: TaskStatus,
     info: LimitInfo,

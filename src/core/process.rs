@@ -1,13 +1,13 @@
 use crate::LimitInfo;
-use std::{thread::sleep, time::Duration};
-use sysinfo::{Process, ProcessExt, Signal};
+use std::{thread::sleep, time::Duration, error::Error};
+use sysinfo::{Process, ProcessExt, Signal, System};
 
 // Use a run-time-slice limiting approach
 // Calculation method: (Working time slice percentage) = (Process CPU usage) / (Target CPU usage) * (Last working time slice percentage)
 // ⚠: If the calculation Result% > 100% time slice, it is considered 100%
 // ⚠: If the calculation Result% < Minimum margin% time slice, then it is considered 0%
 
-pub fn limit_process(process: &Process, mut info: LimitInfo) -> Duration {
+pub fn limit_process(process: &Process, info: &mut LimitInfo) -> Duration {
     let (work_slice, sleep_slice, _total_slice) = info.result();
     sleep(work_slice);
     process.kill_with(Signal::Stop);
