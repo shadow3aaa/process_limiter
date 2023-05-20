@@ -3,7 +3,7 @@ name = "process_limiter"
 version = "0.1.0"
 description = "A lib which can directly limit the specified process occupancy, and support multithreading and dynamically changing occupancy"
 license = "WTFPL"
-repository = "github.com/shadow3aaa/task_limiter"
+repository = "https://github.com/shadow3aaa/process_limiter"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
