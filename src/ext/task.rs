@@ -1,10 +1,9 @@
-use crate::{LimitInfo, Task, TaskStatus, core};
+use crate::{LimitInfo, Task, TaskStatus, core, misc};
 use std::error::Error;
-use std::os::unix::thread::JoinHandleExt;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, Signal, ProcessRefreshKind};
+use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, ProcessRefreshKind};
 
 // What the Process needs to be refreshed
 macro_rules! PROCESS_REFRESH {
@@ -19,7 +18,7 @@ pub trait TaskExt {
     fn pause(&mut self) -> Result<(), Box<dyn Error>>;
     fn remuse(&mut self) -> Result<(), Box<dyn Error>>;
     fn set_target(&mut self, new_target: f32) -> Result<(), Box<dyn Error>>;
-    fn status(&self) -> TaskStatus;
+    fn status(&mut self) -> TaskStatus;
 }
 
 impl TaskExt for Task {
@@ -28,7 +27,6 @@ impl TaskExt for Task {
             system,
             thread: None,
             target: Arc::new(Mutex::new(1.0)),
-            status: TaskStatus::Init,
         }
     }
     fn start(&mut self, pid: u32) {
@@ -69,7 +67,7 @@ impl TaskExt for Task {
         } else {
             return Err("Failed to get system".into());
         };
-        stop_by_pid(&mut system, pid)
+        misc::stop_by_pid(&mut system, pid)
     }
     fn remuse(&mut self) -> Result<(), Box<dyn Error>> {
         let pid = self.get_thread_pid()?;
@@ -78,7 +76,7 @@ impl TaskExt for Task {
         } else {
             return Err("Failed to get system".into());
         };
-        cont_by_pid(&mut system, pid)
+        misc::cont_by_pid(&mut system, pid)
     }
     fn set_target(&mut self, new_target: f32) -> Result<(), Box<dyn Error>> {
         let mut target = match self.target.lock() {
@@ -90,8 +88,21 @@ impl TaskExt for Task {
         *target = new_target;
         Ok(())
     }
-    fn status(&self) -> TaskStatus {
-        todo!()
+    fn status(&mut self) -> TaskStatus {
+        let pid = if let Ok(o) = self.get_thread_pid() {
+            o
+        } else {
+            return TaskStatus::NeedInit;
+        };
+        let mut system = if let Ok(o) = self.system.lock() {
+            o
+        } else {
+            return TaskStatus::NeedInit;
+        };
+        match misc::status_by_pid(&mut system, pid) {
+            Ok(o) => o,
+            Err(_) => TaskStatus::NeedInit
+        }
     }
 }
 
@@ -101,29 +112,9 @@ impl Task {
             return Err("Limiter process does not exist".into());
         }
         if let Some(o) = &self.thread {
-            Ok(o.as_pthread_t() as u32)
+            Ok(misc::get_thread_pid(o))
         } else {
             Err("Limiter process does not exist".into())
         }
     }
-}
-
-fn stop_by_pid(system: &mut System, pid: u32) -> Result<(), Box<dyn Error>> {
-    let process = if let Some(o) = system.process(Pid::from_u32(pid)) {
-        o
-    } else {
-        return Err("Process not found".into());
-    };
-    process.kill_with(Signal::Stop).expect("not supported");
-    Ok(())
-}
-
-fn cont_by_pid(system: &mut System, pid: u32) -> Result<(), Box<dyn Error>> {
-    let process = if let Some(o) = system.process(Pid::from_u32(pid)) {
-        o
-    } else {
-        return Err("Process not found".into());
-    };
-    process.kill_with(Signal::Continue).expect("not supported");
-    Ok(())
 }
