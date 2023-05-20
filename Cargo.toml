@@ -1,5 +1,5 @@
 [package]
-name = "task_limiter"
+name = "process_limiter"
 version = "0.1.0"
 description = "A lib which can directly limit the specified process occupancy, and support multithreading and dynamically changing occupancy"
 license = "WTFPL"
