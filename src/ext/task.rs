@@ -7,11 +7,10 @@ use sysinfo::{System};
 
 pub trait TaskExt {
     fn new(system: Arc<Mutex<System>>) -> Self;
+    fn start(&mut self, pid: u32) -> Result<(), Box<dyn Error>>;
     fn pause(&mut self) -> Result<(), Box<dyn Error>>;
-    fn start(&mut self) -> Result<(), Box<dyn Error>>;
-    fn restrart(&mut self) -> Result<(), Box<dyn Error>>;
+    fn restrart(&mut self, new_pid: u32) -> Result<(), Box<dyn Error>>;
     fn status(&self) -> TaskStatus;
-    fn with_re_search(self) -> Self;
 }
 
 impl TaskExt for Task {
@@ -20,27 +19,23 @@ impl TaskExt for Task {
         // By default, threads are paused
         Self {
             system,
+            pid: None,
             thread,
-            re_search: false,
             status: TaskStatus::Init,
             info: LimitInfo::default(),
         }
     }
+    fn start(&mut self, pid: u32) -> Result<(), Box<dyn Error>> {
+        todo!()
+    }
     fn pause(&mut self) -> Result<(), Box<dyn Error>> {
         todo!()
     }
-    fn start(&mut self) -> Result<(), Box<dyn Error>> {
-        todo!()
-    }
-    fn restrart(&mut self) -> Result<(), Box<dyn Error>> {
+    fn restrart(&mut self, new_pid: u32) -> Result<(), Box<dyn Error>> {
         todo!()
     }
     fn status(&self) -> TaskStatus {
         todo!()
-    }
-    fn with_re_search(mut self) -> Self {
-        self.re_search = true;
-        self
     }
 }
 
