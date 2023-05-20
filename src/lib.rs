@@ -2,7 +2,7 @@
 //!
 //! ```
 //! // Create a Limiter that generates Tasks that are actually used for control.
-//! use task_limiter::{Limiter, LimiterExt};
+//! use process_limiter::{Limiter, LimiterExt};
 //! let mut limiter = Limiter::new();
 //! // Derive a Task from Limiter
 //! let mut task = limiter.spawn();

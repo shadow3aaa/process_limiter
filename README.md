@@ -1,0 +1,1 @@
+# * Resource-limiting Rust library for specific processes, with multithreading and dynamic occupancy adjustments. Easily limits system resource usage to reduce instability and downtime, ideal for any project needing strict resource control.
