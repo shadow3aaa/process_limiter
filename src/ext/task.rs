@@ -2,7 +2,7 @@ use crate::{LimitInfo, Task, TaskStatus, core};
 use std::error::Error;
 use std::os::unix::thread::JoinHandleExt;
 use std::sync::{Arc, Mutex};
-use std::thread::{self, JoinHandle};
+use std::thread;
 
 use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, Signal, ProcessRefreshKind};
 
@@ -81,7 +81,7 @@ impl TaskExt for Task {
     fn set_target(&mut self, new_target: f32) -> Result<(), Box<dyn Error>> {
         let mut target = match self.target.lock() {
             Ok(o) => o,
-            Err(e) => {
+            Err(_e) => {
                 return Err("Failed to get the lock".into());
             }
         };

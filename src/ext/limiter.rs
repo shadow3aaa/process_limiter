@@ -38,21 +38,23 @@ impl LimiterExt for Limiter {
         Task::new(self.system.clone())
     }
     fn search_pid(&mut self, name: &str) -> Option<Vec<u32>> {
-        let system = if let Ok(o) = self.system.lock() {
+        let mut system = if let Ok(o) = self.system.lock() {
             o
         } else {
             return None;
         };
+        update_all(&mut system);
         let list = system.processes_by_name(name);
         let list = list.into_iter().map(|p| p.pid().as_u32()).collect();
         Some(list)
     }
     fn search_pid_exactly(&mut self, name: &str) -> Option<u32> {
-        let system = if let Ok(o) = self.system.lock() {
+        let mut system = if let Ok(o) = self.system.lock() {
             o
         } else {
             return None;
         };
+        update_all(&mut system);
         let list = system.processes_by_exact_name(name);
         // 优先返回pid更小的那个
         list.into_iter().map(|p| p.pid().as_u32()).min()
