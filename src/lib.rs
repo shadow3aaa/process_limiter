@@ -43,8 +43,8 @@ pub struct Task {
     pid: Option<u32>,
     thread: Option<JoinHandle<()>>,
 
+    target: Arc<Mutex<f32>>,
     status: TaskStatus,
-    info: LimitInfo,
 }
 
 #[derive(Debug)]

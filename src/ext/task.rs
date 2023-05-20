@@ -8,9 +8,10 @@ use sysinfo::{System, SystemExt, Pid, PidExt, ProcessExt, Signal};
 
 pub trait TaskExt {
     fn new(system: Arc<Mutex<System>>) -> Self;
-    fn start(&mut self, pid: u32) -> Result<(), Box<dyn Error>>;
+    fn start(&mut self, pid: u32);
     fn pause(&mut self) -> Result<(), Box<dyn Error>>;
     fn remuse(&mut self) -> Result<(), Box<dyn Error>>;
+    fn set_target(&mut self, new_target: f32) -> Result<(), Box<dyn Error>>;
     fn status(&self) -> TaskStatus;
 }
 
@@ -20,19 +21,36 @@ impl TaskExt for Task {
             system,
             pid: None,
             thread: None,
+            target: Arc::new(Mutex::new(1.0)),
             status: TaskStatus::Init,
-            info: LimitInfo::default(),
         }
     }
-    fn start(&mut self, pid: u32) -> Result<(), Box<dyn Error>> {
-        todo!()
+    fn start(&mut self, pid: u32) {
+        let target = self.target.clone();
+        let system = self.system.clone();
+        self.thread = Some(thread::spawn(move || {
+            let mut info = LimitInfo::default();
+            loop {
+                let target = if let Ok(o) = target.lock() {
+                    o
+                } else {
+                    continue;
+                };
+                let system = if let Ok(o) = system.lock() {
+                    o
+                } else {
+                    continue;
+                };
+                let process = if let Some(o) = system.process(Pid::from_u32(pid)) {
+                    o
+                } else {
+                    continue;
+                };
+            }
+        }));
     }
     fn pause(&mut self) -> Result<(), Box<dyn Error>> {
-        let pid = if let Some(o) = &self.thread {
-            o.as_pthread_t() as u32
-        } else {
-            return Err("Limiter process does not exist".into());
-        };
+        let pid = self.get_thread_pid()?;
         let mut system = if let Ok(o) = self.system.lock() {
             o
         } else {
@@ -41,11 +59,7 @@ impl TaskExt for Task {
         stop_by_pid(&mut system, pid)
     }
     fn remuse(&mut self) -> Result<(), Box<dyn Error>> {
-        let pid = if let Some(o) = &self.thread {
-            o.as_pthread_t() as u32
-        } else {
-            return Err("Limiter process does not exist".into());
-        };
+        let pid = self.get_thread_pid()?;
         let mut system = if let Ok(o) = self.system.lock() {
             o
         } else {
@@ -53,8 +67,31 @@ impl TaskExt for Task {
         };
         cont_by_pid(&mut system, pid)
     }
+    fn set_target(&mut self, new_target: f32) -> Result<(), Box<dyn Error>> {
+        let mut target = match self.target.lock() {
+            Ok(o) => o,
+            Err(e) => {
+                return Err("Failed to get the lock".into());
+            }
+        };
+        *target = new_target;
+        Ok(())
+    }
     fn status(&self) -> TaskStatus {
         todo!()
+    }
+}
+
+impl Task {
+    fn get_thread_pid(&mut self) -> Result<u32, Box<dyn Error>> {
+        if self.thread.is_none() {
+            return Err("Limiter process does not exist".into());
+        }
+        if let Some(o) = &self.thread {
+            Ok(o.as_pthread_t() as u32)
+        } else {
+            Err("Limiter process does not exist".into())
+        }
     }
 }
 
