@@ -1,12 +1,11 @@
 use super::task::TaskExt;
-use crate::{Limiter, Task, Update};
+use crate::{Limiter, Task};
 use std::{
-    collections::HashMap,
-    marker::PhantomData,
-    sync::{mpsc::channel, Arc, Mutex},
-    thread,
+    sync::{Arc, Mutex},
 };
-use sysinfo::{Pid, PidExt, ProcessExt, ProcessRefreshKind, RefreshKind, System, SystemExt};
+use sysinfo::{
+    Pid, ProcessRefreshKind, RefreshKind, System, SystemExt,
+};
 
 // What the Process needs to be refreshed
 macro_rules! PROCESS_REFRESH {
@@ -15,52 +14,31 @@ macro_rules! PROCESS_REFRESH {
     };
 }
 
-// Create credentials for the restricted task
-pub enum CreatTaskBy {
-    Pid(u32),
-    Name(String),
-    ExactName(String),
-}
-
-pub trait LimiterExt<'a: 'b, 'b> {
-    // Constructor
-    fn new() -> Self;
-    // Create a Task, one for each Process
-    // Task is the type of actual operation restriction process, and Limiter manages Tasks
-    fn new_task(&'a mut self, by: CreatTaskBy) -> Option<&'b mut Task<'b>>;
-}
-
-impl<'a: 'b, 'b> Default for Limiter<'a, 'b> {
+impl Default for Limiter {
     fn default() -> Self {
         let system = Arc::new(Mutex::new(System::new_with_specifics(
             RefreshKind::new().with_processes(PROCESS_REFRESH!()),
         )));
 
-        Self {
-            system,
-            tasks: HashMap::<Pid, Task<'b>>::new(),
-            _marker: PhantomData,
-        }
+        Self { system }
     }
 }
 
-impl<'a: 'b, 'b> LimiterExt<'a, 'b> for Limiter<'a, 'b> {
+pub trait LimiterExt {
+    fn new() -> Self;
+    fn spawn(&mut self, pid: Pid) -> Task;
+    fn search_pid(name: &str) -> Option<Vec<Pid>>;
+}
+
+impl LimiterExt for Limiter {
     fn new() -> Self {
         Self::default()
     }
-    fn new_task(&'a mut self, by: CreatTaskBy) -> Option<&'b mut Task<'b>> {
-        let mut system = self.system.lock().unwrap();
-        // Get the process
-        let process = match by {
-            CreatTaskBy::Pid(p) => system.process(Pid::from_u32(p))?,
-            CreatTaskBy::Name(s) => system.processes_by_name(&s).next()?,
-            CreatTaskBy::ExactName(s) => system.processes_by_exact_name(&s).next()?,
-        };
-
-        // Save the Task and return a ref
-        let pid = process.pid();
-        self.tasks.insert(pid, Task::new(process, self.system.clone()));
-        self.tasks.get_mut(&pid)
+    fn spawn(&mut self, _pid: Pid) -> Task {
+        todo!()
+    }
+    fn search_pid(_name: &str) -> Option<Vec<Pid>> {
+        todo!()
     }
 }
 

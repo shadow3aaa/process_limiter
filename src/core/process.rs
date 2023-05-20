@@ -8,7 +8,7 @@ use sysinfo::{Process, ProcessExt, Signal};
 // ⚠: If the calculation Result% < Minimum margin% time slice, then it is considered 0%
 
 pub fn limit_process(process: &Process, mut info: LimitInfo) -> Duration {
-    let (work_slice, sleep_slice, total_slice) = info.result();
+    let (work_slice, sleep_slice, _total_slice) = info.result();
     sleep(work_slice);
     process.kill_with(Signal::Stop);
     sleep(sleep_slice);

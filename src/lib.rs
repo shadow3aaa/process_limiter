@@ -1,18 +1,14 @@
 mod core;
-mod display;
 mod ext;
 
 pub use crate::core::*;
-pub use display::*;
 pub use ext::{limiter::*, task::*};
 use std::{
-    collections::HashMap,
-    marker::PhantomData,
     sync::{Arc, Mutex},
     thread::JoinHandle,
     time::Duration,
 };
-use sysinfo::{Pid, Process, Signal, System, SystemExt};
+use sysinfo::{Signal, System, SystemExt};
 
 // 检测是否支持该库的方法
 pub fn support() -> bool {
@@ -27,13 +23,6 @@ pub fn support() -> bool {
     true
 }
 
-// The representative requests an update from the system
-// Contains a U32 representing a Pid
-pub(crate) enum Update {
-    All,
-    Spec(Pid),
-}
-
 #[derive(Debug)]
 pub enum TaskStatus {
     Init,    // 初始化中
@@ -43,20 +32,15 @@ pub enum TaskStatus {
 }
 
 #[derive(Debug)]
-pub struct Limiter<'a: 'b, 'b> {
+pub struct Limiter {
     system: Arc<Mutex<System>>,
-    // Save the map of Tasks in Limiter
-    tasks: HashMap<Pid, Task<'b>>,
-    // _marker is used to transmit <'a> life cycle to Limiter
-    // Makes sense only for the compiler
-    _marker: PhantomData<&'a ()>,
 }
 
 #[derive(Debug)]
-pub struct Task<'a> {
-    process: &'a Process,
+pub struct Task {
     system: Arc<Mutex<System>>,
     thread: JoinHandle<()>,
+    re_search: bool,
     status: TaskStatus,
     info: LimitInfo,
 }
