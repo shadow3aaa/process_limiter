@@ -43,21 +43,28 @@ impl LimitInfo {
     pub fn total_slice(&self) -> Duration {
         self.total_slice
     }
-    // Result:
-    // 0: Work time, 1: Sleep time, 2: Total time
-    // Calculation method: (Working time slice percentage) = (Process CPU usage) / (Target CPU usage) * (Last working time slice percentage)
     pub fn result(&mut self) -> (Duration, Duration, Duration) {
-        let mut work_slice_per = self.current_usage / self.target_usage;
-        // ⚠: If the calculation Result% > 100% time slice, it is considered 100%
-        // ⚠: If the calculation Result% < 0% time slice, then it is considered 0%
-        if work_slice_per > 1.0 {
-            work_slice_per = 1.0;
-        } else if work_slice_per < 0.0 {
-            work_slice_per = 0.0;
+        let max = self.total_slice.as_nanos() as f32 / self.last_work_slice.as_nanos() as f32;
+        let mut work = self.target_usage / self.current_usage;
+        if work.gt(&max) {
+            work = max;
         }
+        let mut work = self.last_work_slice.mul_f32(work);
+        if work > self.total_slice {
+            work = self.total_slice;
+        }
+        let sleep = self.total_slice - work;
+        (work, sleep, self.total_slice)
+    }
+}
 
-        let work_slice = self.last_work_slice.mul_f32(work_slice_per);
-        let sleep_slice = self.total_slice - work_slice;
-        (work_slice, sleep_slice, self.total_slice)
+use std::fmt::Display;
+use std::fmt::Formatter;
+impl Display for LimitInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        writeln!(f, "usage: {}", self.current_usage)?;
+        writeln!(f, "target: {}", self.target_usage)?;
+        writeln!(f, "last worked time: {:?}", self.last_work_slice)?;
+        Ok(())
     }
 }

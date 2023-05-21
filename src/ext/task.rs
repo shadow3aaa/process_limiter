@@ -35,6 +35,7 @@ impl TaskExt for Task {
         self.thread = Some(thread::spawn(move || {
             let mut info = LimitInfo::default();
             loop {
+                println!("{}", info);
                 let mut system = if let Ok(o) = system.lock() {
                     o
                 } else {
@@ -48,12 +49,9 @@ impl TaskExt for Task {
                 } else {
                     break;
                 };
-
-                info.update_current_usage(process.cpu_usage());
+                info.update_current_usage(process.cpu_usage() / 100.0);
                 if let Ok(o) = target.lock() {
                     info.update_taregt_usage(*o);
-                } else {
-                    continue;
                 }
                 let work_slice = core::process::limit_process(process, &mut info);
                 info.update_work_slice(work_slice);

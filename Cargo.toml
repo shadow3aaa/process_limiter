@@ -17,3 +17,4 @@ strip = true
 
 [dependencies]
 sysinfo = "0.29.0"
+spin_sleep = "1.1.1"
