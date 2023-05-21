@@ -1,6 +1,7 @@
 use crate::{core, misc, LimitInfo, Task, TaskStatus};
 use std::error::Error;
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 use std::thread;
 
 use sysinfo::{Pid, PidExt, ProcessExt, ProcessRefreshKind, System, SystemExt};
@@ -36,6 +37,7 @@ impl TaskExt for Task {
             let mut info = LimitInfo::default();
             loop {
                 println!("{}", info);
+                let jank_time = Instant::now();
                 let mut system = if let Ok(o) = system.lock() {
                     o
                 } else {
@@ -53,6 +55,8 @@ impl TaskExt for Task {
                 if let Ok(o) = target.lock() {
                     info.update_taregt_usage(*o);
                 }
+                let jank_time = jank_time.elapsed();
+                info.get_jank_time(jank_time);
                 let work_slice = core::process::limit_process(process, &mut info);
                 info.update_work_slice(work_slice);
             }

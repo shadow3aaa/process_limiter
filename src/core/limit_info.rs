@@ -12,6 +12,7 @@ impl Default for LimitInfo {
             target_usage: 0.0,
             last_work_slice: TOTAL_SLICE,
             total_slice: TOTAL_SLICE,
+            jank_time: Duration::new(0, 0),
         }
     }
 }
@@ -23,6 +24,7 @@ impl LimitInfo {
             target_usage,
             last_work_slice,
             total_slice: TOTAL_SLICE,
+            jank_time: Duration::new(0, 0),
         }
     }
     // The default is 100ms, if you need to customize it
@@ -40,21 +42,25 @@ impl LimitInfo {
     pub fn update_work_slice(&mut self, work_slice: Duration) {
         self.last_work_slice = work_slice;
     }
+    pub fn get_jank_time(&mut self, jank_time: Duration) {
+        self.jank_time = jank_time;
+    }
     pub fn total_slice(&self) -> Duration {
         self.total_slice
     }
     pub fn result(&mut self) -> (Duration, Duration, Duration) {
-        let max = self.total_slice.as_nanos() as f32 / self.last_work_slice.as_nanos() as f32;
+        let total = self.total_slice + self.jank_time;
+        let max = total.as_nanos() as f32 / self.last_work_slice.as_nanos() as f32;
         let mut work = self.target_usage / self.current_usage;
         if work.gt(&max) {
             work = max;
         }
         let mut work = self.last_work_slice.mul_f32(work);
-        if work > self.total_slice {
-            work = self.total_slice;
+        if work > total {
+            work = total;
         }
-        let sleep = self.total_slice - work;
-        (work, sleep, self.total_slice)
+        let sleep = total - work;
+        (work, sleep, total)
     }
 }
 

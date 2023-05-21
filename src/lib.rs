@@ -59,4 +59,5 @@ pub struct LimitInfo {
     target_usage: f32,
     last_work_slice: Duration,
     total_slice: Duration,
+    jank_time: Duration
 }
